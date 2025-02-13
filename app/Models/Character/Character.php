@@ -45,7 +45,7 @@ class Character extends Model {
         'is_sellable', 'is_tradeable', 'is_giftable',
         'sale_value', 'transferrable_at', 'is_visible',
         'is_gift_art_allowed', 'is_gift_writing_allowed', 'is_trading', 'sort',
-        'is_myo_slot', 'name', 'trade_id', 'owner_url',
+        'is_myo_slot', 'name', 'trade_id', 'owner_url', 'phenotype', 'genotype', 'height',
     ];
 
     /**
@@ -94,6 +94,9 @@ class Character extends Model {
         'image'                 => 'required|mimes:jpeg,jpg,gif,png|max:2048',
         'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
         'owner_url'             => 'url|nullable',
+        'phenotype'             => 'nullable',
+        'genotype'              => 'nullable',
+        'height'                => 'nullable',
     ];
 
     /**
@@ -109,6 +112,9 @@ class Character extends Model {
         'sale_value'            => 'nullable',
         'image'                 => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
         'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
+        'phenotype'             => 'nullable',
+        'genotype'              => 'nullable',
+        'height'                => 'nullable',
     ];
 
     /**

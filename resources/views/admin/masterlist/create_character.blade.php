@@ -219,6 +219,22 @@
             </div>
         @endif
 
+        <h3>Genetic Info</h3>
+
+        <div class="form-group">
+            {!! Form::label('Genotype') !!}
+            {!! Form::text('genotype', old('genotype'), ['class' => 'form-control']) !!}
+        </div>
+
+        <div class="form-group">
+            {!! Form::label('Phenotype') !!}
+            {!! Form::text('phenotype', old('phenotype'), ['class' => 'form-control']) !!}
+
+        <div class="form-group">
+            {!! Form::label('height') !!}
+            {!! Form::text('height', old('height'), ['class' => 'form-control']) !!}
+        </div>
+
         <h3>Traits</h3>
 
         <div class="form-group">
@@ -248,7 +264,7 @@
             {!! Form::label('Character Sex (Optional)') !!} @if ($isMyo)
                 {!! add_help('This assign the character a biological sex. Leave it blank if you do not intend to use this.') !!}
             @endif
-            {!! Form::select('sex', [null => 'Select Sex', 'Male' => 'Male', 'Female' => 'Female'], old('sex'), ['class' => 'form-control']) !!}
+            {!! Form::select('sex', [null => 'Select Sex', 'Male' => 'Tom', 'Female' => 'Queen'], old('sex'), ['class' => 'form-control']) !!}
         </div>
 
         <div class="form-group">

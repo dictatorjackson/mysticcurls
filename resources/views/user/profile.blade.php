@@ -2,14 +2,11 @@
 
 @section('profile-title') {{ $user->name }}'s Profile @endsection
 
-<<<<<<< HEAD
 @section('meta-img') {{ asset('/images/avatars/'.$user->avatar) }} @endsection
-=======
 @section('meta-img')
     {{ $user->avatarUrl }}
     {{ $user->profileImgUrl }}
 @endsection
->>>>>>> 5edcfb6bcdcdaa4360d4536cedb3d16861d4a041
 
 @section('profile-content')
 {!! breadcrumbs(['Users' => 'users', $user->name => $user->url]) !!}
