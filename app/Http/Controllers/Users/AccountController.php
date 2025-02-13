@@ -6,6 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\User\User;
 use App\Models\User\UserAlias;
+use App\Models\Character\BreedingPermission;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Notification;
+
+use App\Services\UserService;
 use App\Services\LinkService;
 use App\Services\UserService;
 use BaconQrCode\Renderer\Color\Rgb;
@@ -38,7 +45,7 @@ class AccountController extends Controller {
     public function getBanned() {
         if (Auth::user()->is_banned) {
             return view('account.banned');
-        } else {
+        else
             return redirect()->to('/');
         }
     }
@@ -93,7 +100,52 @@ class AccountController extends Controller {
                 flash($error)->error();
             }
         }
+        else {
+            foreach($service->errors()->getMessages()['error'] as $error) flash($error)->error();
+        }
+        return redirect()->back();
+    }
 
+    /**
+     * Changes the user's password.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Services\UserService  $service
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postPassword(Request $request, UserService $service)
+    {
+        $request->validate( [
+            'old_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed'
+        ]);
+        if($service->updatePassword($request->only(['old_password', 'new_password', 'new_password_confirmation']), Auth::user())) {
+            flash('Password updated successfully.')->success();
+        }
+        else {
+            foreach($service->errors()->getMessages()['error'] as $error) flash($error)->error();
+        }
+        return redirect()->back();
+    }
+
+    /**
+     * Changes the user's email address and sends a verification email.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  App\Services\UserService  $service
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postEmail(Request $request, UserService $service)
+    {
+        $request->validate( [
+            'email' => 'required|string|email|max:255|unique:users'
+        ]);
+        if($service->updateEmail($request->only(['email']), Auth::user())) {
+            flash('Email updated successfully. A verification email has been sent to your new email address.')->success();
+        }
+        else {
+            foreach($service->errors()->getMessages()['error'] as $error) flash($error)->error();
+        }
         return redirect()->back();
     }
 
@@ -474,5 +526,24 @@ class AccountController extends Controller {
         }
 
         return redirect()->back();
+    }
+
+    /**
+     * Shows the user's owned breeding permissions.
+     *
+     * @param  \Illuminate\Http\Request       $request
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getBreedingPermissions(Request $request)
+    {
+        $permissions = BreedingPermission::where('recipient_id', Auth::user()->id);
+        $used = $request->get('used');
+        if(!$used) $used = 0;
+
+        $permissions = $permissions->where('is_used', $used);
+
+        return view('home.breeding_permissions', [
+            'permissions' => $permissions->orderBy('id', 'DESC')->paginate(20)->appends($request->query()),
+        ]);
     }
 }

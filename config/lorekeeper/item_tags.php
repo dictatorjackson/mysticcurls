@@ -36,4 +36,10 @@ return [
         'text_color'       => 'antiquewhite',
         'background_color' => '#cc33ff',
     ],
+
+    'breedingperm' => [
+        'name' => 'Breeding Permission',
+        'text_color' => '#ffffff',
+        'background_color' => '#cbbd8a'
+    ],
 ];

@@ -21,6 +21,15 @@ use Illuminate\Support\Facades\View;
 use Route;
 
 class UserController extends Controller {
+use App\Models\Character\CharacterCategory;
+use App\Models\Character\CharacterImage;
+use App\Models\Character\Character;
+use App\Models\Character\Sublist;
+use App\Models\Character\BreedingPermission;
+
+use App\Http\Controllers\Controller;
+
+}
     /*
     |--------------------------------------------------------------------------
     | User Controller
@@ -68,6 +77,7 @@ class UserController extends Controller {
         if (!Auth::check() || !(Auth::check() && Auth::user()->hasPower('edit_user_info'))) {
             $aliases->visible();
         }
+        if(!Auth::check() || !(Auth::check() && Auth::user()->hasPower('manage_characters'))) $characters->visible();
 
         return view('user.profile', [
             'user'       => $this->user,
@@ -89,7 +99,6 @@ class UserController extends Controller {
         $aliases = $this->user->aliases();
         if (!Auth::check() || !(Auth::check() && Auth::user()->hasPower('edit_user_info'))) {
             $aliases->visible();
-        }
 
         return view('user.aliases', [
             'user'    => $this->user,
@@ -187,6 +196,28 @@ class UserController extends Controller {
         return view('user.myo_slots', [
             'user' => $this->user,
             'myos' => $myo->get(),
+        ]);
+    }
+
+    /**
+     * Shows the user's breeding permissions.
+     *
+     * @param  \Illuminate\Http\Request       $request
+     * @param  string                         $name
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserBreedingPermissions(Request $request)
+    {
+        $permissions = BreedingPermission::where('recipient_id', $this->user->id);
+        $used = $request->get('used');
+        if(!$used) $used = 0;
+
+        $permissions = $permissions->where('is_used', $used);
+
+        return view('user.breeding_permissions', [
+            'user' => $this->user,
+            'permissions' => $permissions->orderBy('id', 'DESC')->paginate(20)->appends($request->query()),
+            'sublists' => Sublist::orderBy('sort', 'DESC')->get()
         ]);
     }
 

@@ -3,6 +3,22 @@
 namespace App\Models\Character;
 
 use App\Facades\Notifications;
+use Config;
+use DB;
+use Carbon\Carbon;
+use Notifications;
+use App\Models\Model;
+use Settings;
+
+use App\Models\User\User;
+use App\Models\User\UserCharacterLog;
+
+use App\Models\Character\Character;
+use App\Models\Character\CharacterCategory;
+use App\Models\Character\CharacterTransfer;
+use App\Models\Character\CharacterBookmark;
+
+use App\Models\Character\CharacterCurrency;
 use App\Models\Currency\Currency;
 use App\Models\Currency\CurrencyLog;
 use App\Models\Character\CharacterLineage;
@@ -211,6 +227,14 @@ class Character extends Model {
         return $this->hasMany(CharacterLineage::class, 'parent_1_id')->orWhere('parent_2_id', $this->id);
     }
 
+    /**
+     * Get the character's associated breeding permissions.
+     */
+    public function breedingPermissions()
+    {
+        return $this->hasMany('App\Models\Character\BreedingPermission', 'character_id');
+    }
+
     /**********************************************************************************************
 
         SCOPES
@@ -376,6 +400,28 @@ class Character extends Model {
      */
     public function getLogTypeAttribute() {
         return 'Character';
+    }
+
+    /**
+     * Gets the character's maximum number of breeding permissions.
+     *
+     * @return int
+     */
+    public function getMaxBreedingPermissionsAttribute()
+    {
+        $currencies = $this->getCurrencies(true)->where('id', Settings::get('breeding_permission_currency'))->first();
+        if(!$currencies) return 0;
+        return $currencies->quantity;
+    }
+
+    /**
+     * Gets the character's number of available breeding permissions.
+     *
+     * @return int
+     */
+    public function getAvailableBreedingPermissionsAttribute()
+    {
+        return $this->maxBreedingPermissions - $this->breedingPermissions->count();
     }
 
     /**********************************************************************************************
