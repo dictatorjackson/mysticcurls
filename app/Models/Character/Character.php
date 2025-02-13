@@ -6,7 +6,6 @@ use App\Facades\Notifications;
 use Config;
 use DB;
 use Carbon\Carbon;
-use Notifications;
 use App\Models\Model;
 use Settings;
 
@@ -26,14 +25,10 @@ use App\Models\Character\CharacterLineageBlacklist;
 use App\Models\Gallery\GalleryCharacter;
 use App\Models\Item\Item;
 use App\Models\Item\ItemLog;
-use App\Models\Model;
 use App\Models\Rarity;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCharacter;
 use App\Models\Trade;
-use App\Models\User\User;
-use App\Models\User\UserCharacterLog;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Character extends Model {
