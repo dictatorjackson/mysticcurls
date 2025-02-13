@@ -205,6 +205,15 @@ return [
             ],
         ],
     ],
+    'Pairings'   => [
+        'power' => 'edit_data',
+        'links' => [
+            [
+                'name' => 'Pairing Roller',
+                'url'  => 'admin/pairings/roller',
+            ],
+        ],
+    ],
     'Settings'   => [
         'power' => 'edit_site_settings',
         'links' => [
