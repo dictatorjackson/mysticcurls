@@ -9,17 +9,36 @@
 
     <h1>Species</h1>
 
-    <div class="text-right mb-3"><a class="btn btn-primary" href="{{ url('admin/data/species/create') }}"><i class="fas fa-plus"></i> Create New Species</a></div>
-    @if (!count($specieses))
-        <p>No species found.</p>
-    @else
-        <table class="table table-sm species-table">
-            <thead>
-                <tr>
-                    <th>Species</th>
-                    <th>Sub Masterlist</th>
-                    <th>Inherit Chance</th>
-                    <th></th>
+<div class="text-right mb-3"><a class="btn btn-primary" href="{{ url('admin/data/species/create') }}"><i class="fas fa-plus"></i> Create New Species</a></div>
+@if(!count($specieses))
+    <p>No species found.</p>
+@else 
+    <table class="table table-sm species-table">
+    <thead>
+            <tr>
+                <th>Species</th>
+                <th>Sub Masterlist</th>
+                <th>Inherit Chance</th>
+                <th>Free MYO Usable</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody id="sortable" class="sortable">
+            @foreach($specieses as $species)
+                <tr class="sort-item" data-id="{{ $species->id }}">
+                    <td>
+                        <a class="fas fa-arrows-alt-v handle mr-3" href="#"></a>
+                        {!! $species->displayName !!}
+                    </td>
+                    <td>
+                    @if(isset($species->sublist->name)) {{ $species->sublist->name  }} @else -- @endif
+                    </td>
+                    <td>
+                        @if($species->is_free_myo_usable == 1) <i class="far fa-check-circle fa-lg text-success"></i> @else <i class="far fa-times-circle fa-lg text-danger"></i> @endif
+                    </td>
+                    <td class="text-right">
+                        <a href="{{ url('admin/data/species/edit/'.$species->id) }}" class="btn btn-primary">Edit</a>
+                    </td>
                 </tr>
             </thead>
             <tbody id="sortable" class="sortable">

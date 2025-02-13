@@ -82,6 +82,9 @@ Route::group(['prefix' => 'characters', 'namespace' => 'Users'], function () {
     Route::post('pairings/approve/{id}', 'PairingController@approvePairing');
     Route::post('pairings/reject/{id}', 'PairingController@rejectPairing');
     Route::post('pairings/complete/{id}', 'PairingController@createMyos');
+    Route::get('myos/new', 'CharacterController@getCreateFreeMyo');
+    Route::post('myos/new', 'CharacterController@postCreateFreeMyo');
+    Route::get('check-subtype', 'CharacterController@getCreateCharacterMyoSubtype');
 });
 
 Route::group(['prefix' => 'bank', 'namespace' => 'Users'], function () {

@@ -74,6 +74,22 @@ class AddSiteSettings extends Command {
         $this->addSiteSetting('group_currency', 1, 'ID of the group currency to award from gallery submissions (if enabled).');
 
         $this->addSiteSetting('is_maintenance_mode', 0, '0: Site is normal, 1: Users without the Has Maintenance Access power will be redirected to the home page.');
+        $this->addSiteSetting('free_myos_open', 0, '0: Free MYO creations closed, 1: Free MYO creations open.');
+
+        $this->addSiteSetting('free_myos_max_number', 0, 'Optional limit to the number of free MYOs a user can create. Enter "0" to allow users infinite free MYOs.');
+
+        $this->addSiteSetting('free_myos_rarity', 0, 'ID of the max rarity a free MYO allows. Enter "0" for no limitations.');
+
+        $this->addSiteSetting('free_myos_require_subtype', 0, '0: Subtypes are optional for free MYOs, 1: Subtypes are mandatory for free MYOs. ');
+
+        $this->addSiteSetting('free_myos_is_giftable', 1, '0: MYOs cannot be gifted, 1: MYOs can be gifted. ');
+
+        $this->addSiteSetting('free_myos_is_tradeable', 1, '0: MYOs cannot be traded, 1: MYOs can be traded. ');
+
+        $this->addSiteSetting('free_myos_is_resellable', 0, '0: MYOs cannot be resold, 1: MYOs can be resold. ');
+
+
+        $this->line("\nSite settings up to date!");
 
         $this->addSiteSetting('deactivated_privacy', 0, 'Who can view the deactivated list? 0: Admin only, 1: Staff only, 2: Members only, 3: Public.');
 

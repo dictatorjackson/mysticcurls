@@ -77,8 +77,10 @@ class SpeciesService extends Service {
 
             $data = $this->populateData($data, $species);
 
-            $image = null;
-            if (isset($data['image']) && $data['image']) {
+            $species->is_free_myo_usable = isset($data['is_free_myo_usable']);
+
+            $image = null;            
+            if(isset($data['image']) && $data['image']) {
                 $data['has_image'] = 1;
                 $data['hash'] = randomString(10);
                 $image = $data['image'];
@@ -212,8 +214,10 @@ class SpeciesService extends Service {
         try {
             $data = $this->populateSubtypeData($data, $subtype);
 
-            $image = null;
-            if (isset($data['image']) && $data['image']) {
+            $subtype->is_free_myo_usable = isset($data['is_free_myo_usable']);
+
+            $image = null;            
+            if(isset($data['image']) && $data['image']) {
                 $data['has_image'] = 1;
                 $data['hash'] = randomString(10);
                 $image = $data['image'];

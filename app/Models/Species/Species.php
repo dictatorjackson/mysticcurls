@@ -13,7 +13,7 @@ class Species extends Model {
      * @var array
      */
     protected $fillable = [
-        'name', 'sort', 'has_image', 'description', 'parsed_description', 'masterlist_sub_id', 'is_visible', 'inherit_chance', 'hash',
+        'name', 'sort', 'has_image', 'description', 'parsed_description', 'masterlist_sub_id', 'is_free_myo_usable' 'is_visible', 'inherit_chance', 'hash',
     ];
 
     /**

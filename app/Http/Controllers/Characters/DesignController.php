@@ -216,8 +216,19 @@ class DesignController extends Controller {
      */
     public function getFeatures($id) {
         $r = CharacterDesignUpdate::find($id);
-        if (!$r || ($r->user_id != Auth::user()->id && !Auth::user()->hasPower('manage_characters'))) {
-            abort(404);
+        $isMyo = Character::where('id', $r->character_id)->pluck('is_myo_slot')->first();  
+        $isFreeMyo = Character::where('id', $r->character_id)->pluck('is_free_myo')->first();  
+        $hasSpeciesUsable = Species::where('is_free_myo_usable', 1)->count() != 0;
+        $hasSubtypeUsable = Subtype::where('is_free_myo_usable', 1)->count() != 0;
+        if(!$r || ($r->user_id != Auth::user()->id && !Auth::user()->hasPower('manage_characters'))) abort(404);
+
+        // display available species in the dropdown
+        if(!$isFreeMyo){
+            $speciesDropdown = ['0' => 'Select Species'] + Species::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray();
+            $subtypeDropdown = ['0' => 'No Subtype'] + Subtype::where('species_id','=',$r->species_id)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray();
+        } else {
+            $speciesDropdown = ['0' => 'Select Species'] + Species::where('is_free_myo_usable', 1)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray();
+            $subtypeDropdown = ['0' => 'No Subtype'] + Subtype::where('species_id','=',$r->species_id)->where('is_free_myo_usable', 1)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray();
         }
 
         return view('character.design.features', [
@@ -226,6 +237,15 @@ class DesignController extends Controller {
             'subtypes'  => ['0' => 'No Subtype'] + Subtype::visible()->where('species_id', '=', $r->species_id)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
             'rarities'  => ['0' => 'Select Rarity'] + Rarity::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
             'features'  => Feature::getDropdownItems(),
+            'request' => $r,
+            'isMyo' => $isMyo,
+            'isFreeMyo' => $isFreeMyo,
+            'hasSpeciesUsable' => $hasSpeciesUsable,
+            'hasSubtypeUsable' => $hasSubtypeUsable,
+            'specieses' => $speciesDropdown,
+            'subtypes' => $subtypeDropdown,
+            'rarities' => ['0' => 'Select Rarity'] + Rarity::orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+            'features' => Feature::orderBy('name')->pluck('name', 'id')->toArray()
         ]);
     }
 
@@ -242,6 +262,30 @@ class DesignController extends Controller {
             'subtypes' => ['0' => 'Select Subtype'] + Subtype::visible()->where('species_id', '=', $species)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
             'subtype'  => $id,
         ]);
+      $species = $request->input('species');
+      $id = $request->input('id');
+      $r = CharacterDesignUpdate::find($id);
+      $isFreeMyo = Character::where('id', $r->character_id)->pluck('is_free_myo')->first();
+      $hasSubtypeUsable = Subtype::where('species_id','=',$species)->where('is_free_myo_usable', 1)->count() != 0;
+      $requireSubtype = Settings::get('free_myos_require_subtype');
+
+      // display available subtypes in the dropdown
+      if(!$isFreeMyo){
+          $subtypeDropdown = ['0' => 'Select Subtype'] + Subtype::where('species_id','=',$species)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray();
+      } else {
+          if($hasSubtypeUsable && !$requireSubtype){
+            $subtypeDropdown = ['0' => 'Select Subtype'] + Subtype::where('species_id','=',$species)->where('is_free_myo_usable', 1)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray();
+          } elseif ($hasSubtypeUsable && $requireSubtype) {
+            $subtypeDropdown = Subtype::where('species_id','=',$species)->where('is_free_myo_usable', 1)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray();
+          } else {
+            $subtypeDropdown = ['0' => 'No Subtypes Available'];
+          };
+      };
+      
+      return view('character.design._features_subtype', [
+          'subtypes' => $subtypeDropdown,
+          'subtype' => $id
+      ]);
     }
 
     /**

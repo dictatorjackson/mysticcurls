@@ -163,6 +163,9 @@
                         </a>
 
                         <div class="dropdown-menu" aria-labelledby="browseDropdown">
+                            <a class="dropdown-item" href="{{ url('characters/myos/new') }}">
+                                Create Free MYO
+                            </a>
                             <a class="dropdown-item" href="{{ url('submissions/new') }}">
                                 Submit Prompt
                             </a>

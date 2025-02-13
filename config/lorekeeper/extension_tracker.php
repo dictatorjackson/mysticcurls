@@ -21,6 +21,14 @@ return [
         ]),
         'version' => '2.0.1', 
     ],
+    'free_myos' => [
+        'key' => 'free_myos',
+        'wiki_key' => 'Free_MYOs',
+            'creators' => json_encode([
+            'AnimatedCritter' => 'https://github.com/animatedcritter/',
+        ]),
+        'version' => '1.0.0',
+    ],
 
     'breeding_permissions' => [
         'key' => 'breeding_permissions',

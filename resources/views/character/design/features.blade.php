@@ -22,7 +22,11 @@
             @if ($request->character->is_myo_slot && $request->character->image->species_id)
                 <div class="alert alert-secondary">{!! $request->character->image->species->displayName !!}</div>
             @else
-                {!! Form::select('species_id', $specieses, $request->species_id, ['class' => 'form-control', 'id' => 'species']) !!}
+                @if($isMyo && $isFreeMyo && !$hasSpeciesUsable)
+                <p class="alert alert-danger">No species are currently available to use for free MYOs. Please <a href="{{ url('reports/bug-reports') }}">file a bug report</a>.</p>
+                @else
+                    {!! Form::select('species_id', $specieses, $request->species_id, ['class' => 'form-control', 'id' => 'species']) !!}
+                @endif
             @endif
 
         </div>
@@ -35,6 +39,13 @@
                 <div id="subtypes">
                     {!! Form::select('subtype_id', $subtypes, $request->subtype_id, ['class' => 'form-control', 'id' => 'subtype']) !!}
                 </div>
+                @if($isMyo && $isFreeMyo && !$hasSubtypeUsable)
+                    <p class="alert alert-warning">No subtypes are currently available to use for free MYOs.</p>
+                @else
+                    <div id="subtypes">
+                      {!! Form::select('subtype_id', $subtypes, $request->subtype_id, ['class' => 'form-control', 'id' => 'subtype']) !!}
+                    </div>
+                @endif
             @endif
 
         </div>
