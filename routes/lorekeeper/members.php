@@ -69,6 +69,7 @@ Route::group(['prefix' => 'inventory', 'namespace' => 'Users'], function () {
 Route::group(['prefix' => 'characters', 'namespace' => 'Users'], function () {
     Route::get('/', 'CharacterController@getIndex');
     Route::post('sort', 'CharacterController@postSortCharacters');
+    Route::post('select-character', 'CharacterController@postSelectCharacter');
 
     Route::get('transfers/{type}', 'CharacterController@getTransfers');
     Route::post('transfer/act/{id}', 'CharacterController@postHandleTransfer');

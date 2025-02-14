@@ -40,6 +40,10 @@ return [
     'breeding_permissions' => [
         'key' => 'breeding_permissions',
         'wiki_key' => 'Breeding_Permissions',
+    ],
+    'selected_character' => [
+        'key' => 'selected_character',
+        'wiki_key' => 'Selected_Character',
         'creators' => json_encode([
             'Mercury' => 'https://github.com/itinerare/',
         ]),

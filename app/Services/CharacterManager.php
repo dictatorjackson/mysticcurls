@@ -1443,6 +1443,13 @@ class CharacterManager extends Service {
      * @return  bool
      */
     public function transferBreedingPermission($character, $permission, $recipient, $user)
+     * Selects a character for a user.
+     *
+     * @param  array                                 $data
+     * @param  \App\Models\User\User                 $user
+     * @return  bool
+     */
+    public function selectCharacter($data, $user)
     {
         DB::beginTransaction();
 
@@ -1518,6 +1525,14 @@ class CharacterManager extends Service {
                 'log' => $type . ($data ? ' (' . $data . ')' : ''),
                 'log_type' => $type,
                 'data' => $data
+            // Ensure the character is present and visible to be selected,
+            // and belongs to the user
+            $character = Character::visible()->where('id', $data['character_id'])->first();
+            if(!$character) throw new \Exception('Invalid character selected.');
+            if($character->user_id != $user->id) throw new \Exception('You can\'t select a character that doesn\'t belong to you.');
+
+            $user->settings->update([
+                'selected_character_id' => $character->id,
             ]);
 
             return $this->commitReturn(true);
@@ -2222,6 +2237,13 @@ class CharacterManager extends Service {
                 $recipient->settings->is_fto = 0;
             }
             $recipient->settings->save();
+        }
+
+        // Unset the owner's selected character if it's this character
+        if($character->user && $character->user->settings->selected_character_id == $character->id) {
+            $character->user->settings->update([
+                'selected_character_id' => null,
+            ]);
         }
 
         // Update character owner, sort order and cooldown
