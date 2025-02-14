@@ -28,7 +28,7 @@ return [
             'AnimatedCritter' => 'https://github.com/animatedcritter/',
         ]),
         'version' => '1.0.0',
-    
+    ],
     'higher_or_lower' => [
         'key' => 'higher_or_lower',
         'wiki_key' => 'Higher_or_Lower',
@@ -37,7 +37,6 @@ return [
         ]),
         'version' => '1.0.1',
     ],
-
     'breeding_permissions' => [
         'key' => 'breeding_permissions',
         'wiki_key' => 'Breeding_Permissions',
@@ -46,8 +45,6 @@ return [
         ]),
         'version' => '1.0.1',
     ],
-
-
     'news_widget' => [
         'key' => 'news_widget',
         'wiki_key' => 'News_Widget',
@@ -64,10 +61,6 @@ return [
         ]),
         'version' => '1.0.0',
     ],
-]
-];
-
-    
     'Birthday_Rewards' => [
         'key' => 'Birthday_Rewards',
             'wiki_key' => 'Birthday_Rewards',
@@ -76,8 +69,7 @@ return [
                 'Moif' => 'https://github.com/AW0005',
             ]),
             'version' => '1.2.0',
-        ],
-
+    ],
     'choice_box_tag' => [
         'key' => 'Choice_Box_Tag',
         'wiki_key' => 'Choice_Box_Tag',
@@ -86,4 +78,5 @@ return [
         ]),
         'version' => '1.0.0',
     ],
+    ] 
 ];
