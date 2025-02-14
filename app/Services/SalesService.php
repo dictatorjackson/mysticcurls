@@ -124,6 +124,66 @@ class SalesService extends Service {
     }
 
     /**
+     * Processes sales data entered for characters.
+     *
+     * @param  App\Models\Sales\Sales                   $sales
+     * @param  array                                    $data
+     * @return bool
+     */
+    private function processCharacters($sales, $data)
+    {
+        foreach($data['slug'] as $key=>$slug) {
+            $character = Character::myo(0)->visible()->where('slug', $slug)->first();
+
+            // Assemble data
+            $charData[$key] = [];
+            $charData[$key]['type'] = $data['sale_type'][$key];
+            switch($charData[$key]['type']) {
+                case 'flatsale':
+                    $charData[$key]['price'] = $data['price'][$key];
+                    break;
+                case 'auction':
+                    $charData[$key]['starting_bid'] = $data['starting_bid'][$key];
+                    $charData[$key]['min_increment'] = $data['min_increment'][$key];
+                    if(isset($data['autobuy'][$key])) $charData[$key]['autobuy'] = $data['autobuy'][$key];
+                    if(isset($data['end_point'][$key])) $charData[$key]['end_point'] = $data['end_point'][$key];
+                    break;
+                case 'ota':
+                    if(isset($data['autobuy'][$key])) $charData[$key]['autobuy'] = $data['autobuy'][$key];
+                    if(isset($data['end_point'][$key])) $charData[$key]['end_point'] = $data['end_point'][$key];
+					if(isset($data['minimum'][$key])) $charData[$key]['minimum'] = $data['minimum'][$key];
+                    break;
+                case 'xta':
+                    if(isset($data['autobuy'][$key])) $charData[$key]['autobuy'] = $data['autobuy'][$key];
+                    if(isset($data['end_point'][$key])) $charData[$key]['end_point'] = $data['end_point'][$key];
+					if(isset($data['minimum'][$key])) $charData[$key]['minimum'] = $data['minimum'][$key];
+                    break;
+                case 'flaffle':
+                    $charData[$key]['price'] = $data['price'][$key];
+                    break;
+                case 'pwyw':
+                    if(isset($data['minimum'][$key])) $charData[$key]['minimum'] = $data['minimum'][$key];
+                    break;
+            }
+
+            // Validate data
+            $validator = Validator::make($charData[$key], SalesCharacter::$rules);
+            if($validator->fails()) throw new \Exception($validator->errors()->first());
+
+            // Record data/attach the character to the sales post
+            SalesCharacter::create([
+                'character_id' => $character->id,
+                'sales_id' => $sales->id,
+                'type' => $charData[$key]['type'],
+                'data' => json_encode($charData[$key]),
+                'description' => isset($data['description'][$key]) ? $data['description'][$key] : null,
+                'link' => isset($data['link'][$key]) ? $data['link'][$key] : null,
+                'is_open' => isset($data['character_is_open'][$character->slug]) ? $data['character_is_open'][$character->slug] : ($data['new_entry'][$key] ? 1 : 0)
+            ]);
+        }
+    }
+
+    /**
      * Deletes a Sales post.
      *
      * @param mixed $sales

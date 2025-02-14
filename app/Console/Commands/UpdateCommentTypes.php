@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Comment\Comment;
+use App\Models\Comment;
 use Illuminate\Console\Command;
 
-class UpdateCommentTypes extends Command {
+class UpdateCommentTypes extends Command
+{
     /**
      * The name and signature of the console command.
      *
@@ -22,8 +23,11 @@ class UpdateCommentTypes extends Command {
 
     /**
      * Create a new command instance.
+     *
+     * @return void
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -32,15 +36,15 @@ class UpdateCommentTypes extends Command {
      *
      * @return int
      */
-    public function handle() {
+    public function handle()
+    {
         $comments = Comment::where('commentable_type', 'App\Models\Report\Report')->where('type', 'User-User');
 
-        if ($comments->count()) {
+        if($comments->count()) {
             $this->line('Updating comment types...');
             $comments->update(['type' => 'Staff-User']);
-            $this->info('Comment types updated!');
         } else {
-            $this->line('No comments need updating!');
+            $this->info('No comments to update!');
         }
 
         return 0;

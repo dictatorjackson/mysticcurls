@@ -132,7 +132,47 @@
                                                 @endforeach
                                             @endforeach
 
-                                            {{--
+@if(isset($submission->data['criterion']))
+<h2 class="mt-5">Criteria Rewards</h2>
+@foreach($submission->data['criterion'] as $criterionData)
+    <div class="card p-3 mb-2">
+    @php $criterion = \App\Models\Criteria\Criterion::where('id', $criterionData['id'])->first() @endphp
+    <h3>{!! $criterion->displayName !!} <span class="text-secondary"> - {!! isset($criterionData['criterion_currency_id']) ?  \App\Models\Currency\Currency::find($criterionData['criterion_currency_id'])->display($criterion->calculateReward($criterionData)) : $criterion->currency->display($criterion->calculateReward($criterionData)) !!}</span></h3>
+    @foreach($criterion->steps->where('is_active', 1) as $step)
+        <div class="d-flex">
+            <span class="mr-1 text-secondary">{{ $step->name }}:</span>
+            @if($step->type === 'options')
+                @php $stepOption = $step->options->where('id', $criterionData[$step->id])->first() @endphp
+                <span>{{ isset($stepOption) ? $stepOption->name : 'Not Selected' }}</span>
+            @elseif($step->type === 'boolean')
+                <span>{{ isset($criterionData[$step->id]) ? 'On' : 'Off' }}
+            @elseif($step->type === 'input')
+                <span> {{ $criterionData[$step->id] ?? 0 }}</span>
+            @endif
+        </div>
+    @endforeach
+    </div>
+@endforeach
+@endif
+
+<h2 class="mt-4">Characters</h2>
+@foreach($submission->characters as $character)
+    <div class="submission-character-row mb-2">
+        <div class="submission-character-thumbnail"><a href="{{ $character->character->url }}"><img src="{{ $character->character->image->thumbnailUrl }}" class="img-thumbnail" alt="Thumbnail for {{ $character->character->fullName }}" /></a></div>
+        <div class="submission-character-info card ml-2">
+            <div class="card-body">
+                <div class="submission-character-info-content">
+                    <h3 class="mb-2 submission-character-info-header"><a href="{{ $character->character->url }}">{{ $character->character->fullName }}</a></h3>
+                    <div class="submission-character-info-body">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th width="70%">Reward</th>
+                                <th width="30%">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach(parseAssetData($character->data) as $key => $type)
 
                                             If you want to "Categorize" the rewards by type, uncomment this and comment or remove the above @foreach.
 

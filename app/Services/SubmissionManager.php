@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Services;
+use App\Models\Criteria\Criterion;
+use App\Services\Service;
 
 use App\Facades\Notifications;
 use App\Facades\Settings;
@@ -55,8 +56,39 @@ class SubmissionManager extends Service {
             }
             if (!$isClaim) {
                 $prompt = Prompt::active()->where('id', $data['prompt_id'])->with('rewards')->first();
-                if (!$prompt) {
-                    throw new \Exception('Invalid prompt selected.');
+                if(!$prompt) throw new \Exception("Invalid prompt selected.");
+            }
+            else $prompt = null;
+            
+            $withCriteriaSelected = isset($data['criterion']) ? array_filter($data['criterion'], function($obj){
+                return isset($obj['id']);
+            }) : [];
+            if(count($withCriteriaSelected) > 0) $data['criterion'] = $withCriteriaSelected;
+            else $data['criterion'] = null;
+
+            // The character identification comes in both the slug field and as character IDs
+            // that key the reward ID/quantity arrays.
+            // We'll need to match characters to the rewards for them.
+            // First, check if the characters are accessible to begin with.
+            if(isset($data['slug'])) {
+                $characters = Character::myo(0)->visible()->whereIn('slug', $data['slug'])->get();
+                if(count($characters) != count($data['slug'])) throw new \Exception("One or more of the selected characters do not exist.");
+            }
+            else $characters = [];
+
+            $userAssets = createAssetsArray();
+
+            // Attach items. Technically, the user doesn't lose ownership of the item - we're just adding an additional holding field.
+            // We're also not going to add logs as this might add unnecessary fluff to the logs and the items still belong to the user.
+            if(isset($data['stack_id'])) {
+                foreach($data['stack_id'] as $stackId) {
+                    $stack = UserItem::with('item')->find($stackId);
+                    if(!$stack || $stack->user_id != $user->id) throw new \Exception("Invalid item selected.");
+                    if(!isset($data['stack_quantity'][$stackId])) throw new \Exception("Invalid quantity selected.");
+                    $stack->submission_count += $data['stack_quantity'][$stackId];
+                    $stack->save();
+
+                    addAsset($userAssets, $stack, $data['stack_quantity'][$stackId]);
                 }
 
                 if ($prompt->staff_only && !$user->isStaff) {
@@ -66,7 +98,17 @@ class SubmissionManager extends Service {
                 $prompt = null;
             }
 
-            // Create the submission itself.
+            // Get a list of rewards, then create the submission itself
+            $promptRewards = createAssetsArray();
+            if(!$isClaim)
+            {
+                foreach($prompt->rewards as $reward)
+                {
+                    addAsset($promptRewards, $reward->reward, $reward->quantity);
+                }
+            }
+            $promptRewards = mergeAssetsArrays($promptRewards, $this->processRewards($data, false));
+            
             $submission = Submission::create([
                 'user_id'   => $user->id,
                 'url'       => $data['url'] ?? null,
@@ -84,10 +126,11 @@ class SubmissionManager extends Service {
 
             $submission->update([
                 'data' => json_encode([
-                    'user'    => Arr::only(getDataReadyAssets($userAssets), ['user_items', 'currencies']),
+                    'user' => Arr::only(getDataReadyAssets($userAssets), ['user_items','currencies']),
                     'rewards' => getDataReadyAssets($promptRewards),
-                ]), // list of rewards and addons
-            ]);
+                    'criterion' => isset($data['criterion']) ? $data['criterion'] : null,
+                ]) // list of rewards and addons
+            ] + ($isClaim ? [] : ['prompt_id' => $prompt->id,]));
 
             // Set characters that have been attached.
             $this->createCharacterAttachments($submission, $data);
@@ -407,6 +450,23 @@ class SubmissionManager extends Service {
                 throw new \Exception('Failed to distribute rewards to user.');
             }
 
+            // Distribute currency from criteria
+            $service = new CurrencyManager;
+            
+            if(isset($data['criterion'])) {
+                foreach($data['criterion'] as $key => $criterionData) {
+                    $criterion = Criterion::where('id', $criterionData['id'])->first();
+                    if(isset($criterionData['criterion_currency_id'])){
+                        $criterion_currency = Currency::find($criterionData['criterion_currency_id']);
+                    }else{
+                        $criterion_currency = $criterion->currency;
+                    }
+
+                    if(!$service->creditCurrency($user, $submission->user, $promptLogType, $promptData['data'], $criterion_currency, $criterion->calculateReward($criterionData))) throw new \Exception("Failed to distribute criterion rewards to user.");
+                }
+            }
+        
+            
             // Retrieve all reward IDs for characters
             $currencyIds = [];
             $itemIds = [];
@@ -476,14 +536,15 @@ class SubmissionManager extends Service {
             // 3. status
             // 4. final rewards
             $submission->update([
-                'staff_comments'        => $data['staff_comments'],
-                'parsed_staff_comments' => $data['parsed_staff_comments'],
-                'staff_id'              => $user->id,
-                'status'                => 'Approved',
-                'data'                  => json_encode([
-                    'user'    => $addonData,
+			    'staff_comments' => $data['staff_comments'],
+				'parsed_staff_comments' => $data['parsed_staff_comments'],
+                'staff_id' => $user->id,
+                'status' => 'Approved',
+                'data' => json_encode([
+                    'user' => $addonData,
                     'rewards' => getDataReadyAssets($rewards),
-                ]), // list of rewards
+                    'criterion' => isset($data['criterion']) ? $data['criterion'] : null
+                    ]) // list of rewards
             ]);
 
             Notifications::create($submission->prompt_id ? 'SUBMISSION_APPROVED' : 'CLAIM_APPROVED', $submission->user, [

@@ -11,69 +11,21 @@
         {!! breadcrumbs(['Admin Panel' => 'admin', 'Claim Queue' => 'admin/claims/pending', 'Claim (#' . $submission->id . ')' => $submission->viewUrl]) !!}
     @endif
 
-    @if ($submission->status == 'Pending')
-
-        <h1>
-            {{ $submission->prompt_id ? 'Submission' : 'Claim' }} (#{{ $submission->id }})
-            <span class="float-right badge badge-{{ $submission->status == 'Pending' || $submission->status == 'Draft' ? 'secondary' : ($submission->status == 'Approved' ? 'success' : 'danger') }}">
-                {{ $submission->status }}
-            </span>
-        </h1>
-
-        <div class="mb-1">
-            <div class="row">
-                <div class="col-md-2 col-4">
-                    <h5>User</h5>
-                </div>
-                <div class="col-md-10 col-8">{!! $submission->user->displayName !!}</div>
+    {!! Form::open(['url' => url()->current(), 'id' => 'submissionForm', 'onsubmit' => "$(this).find('input').prop('disabled', false)"]) !!}
+        @if(isset($submission->data['criterion']))
+        <h2 class="mt-5">Criteria Rewards</h2>
+        @foreach($submission->data['criterion'] as $key => $criterionData)
+            <div class="card p-3 mb-2">
+            @php $criterion = \App\Models\Criteria\Criterion::where('id', $criterionData['id'])->first() @endphp
+            <h3>{!! $criterion->displayName !!}</h3>
+            {!! Form::hidden('criterion['.$key.'][id]', $criterionData['id']) !!}
+            @include('criteria._minimum_requirements', ['criterion' => $criterion, 'values' => $criterionData, 'minRequirements' => $submission->prompt->criteria->where('criterion_id', $criterionData['id'])->first()->minRequirements ?? null, 'title' => 'Selections', 'limitByMinReq' => true, 'id' => $key, 'criterion_currency' => isset($criterionData['criterion_currency_id']) ? $criterionData['criterion_currency_id'] : $criterion->currency_id])
             </div>
-            @if ($submission->prompt_id)
-                <div class="row">
-                    <div class="col-md-2 col-4">
-                        <h5>Prompt</h5>
-                    </div>
-                    <div class="col-md-10 col-8">{!! $submission->prompt->displayName !!}</div>
-                </div>
-                <div class="row">
-                    <div class="col-md-2 col-4">
-                        <h5>Previous Submissions</h5>
-                    </div>
-                    <div class="col-md-10 col-8">{{ $count }} {!! add_help('This is the number of times the user has submitted this prompt before and had their submission approved.') !!}</div>
-                </div>
-            @endif
-            <div class="row">
-                <div class="col-md-2 col-4">
-                    <h5>URL</h5>
-                </div>
-                <div class="col-md-10 col-8"><a href="{{ $submission->url }}">{{ $submission->url }}</a></div>
-            </div>
-            <div class="row">
-                <div class="col-md-2 col-4">
-                    <h5>Submitted</h5>
-                </div>
-                <div class="col-md-10 col-8">{!! format_date($submission->created_at) !!} ({{ $submission->created_at->diffForHumans() }})</div>
-            </div>
-        </div>
-        <h2>Comments</h2>
-        <div class="card mb-3">
-            <div class="card-body">{!! nl2br(htmlentities($submission->comments)) !!}</div>
-        </div>
-        @if (Auth::check() && $submission->staff_comments && ($submission->user_id == Auth::user()->id || Auth::user()->hasPower('manage_submissions')))
-            <h2>Staff Comments ({!! $submission->staff->displayName !!})</h2>
-            <div class="card mb-3">
-                <div class="card-body">
-                    @if (isset($submission->parsed_staff_comments))
-                        {!! $submission->parsed_staff_comments !!}
-                    @else
-                        {!! $submission->staff_comments !!}
-                    @endif
-                </div>
-            </div>
+        @endforeach
         @endif
 
-        {!! Form::open(['url' => url()->current(), 'id' => 'submissionForm']) !!}
 
-        <h2>Rewards</h2>
+        <h2 class="mt-4">Rewards</h2>
         @include('widgets._loot_select', ['loots' => $submission->rewards, 'showLootTables' => true, 'showRaffles' => true])
         @if ($submission->prompt_id)
             <div class="mb-3">

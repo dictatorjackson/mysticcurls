@@ -83,11 +83,21 @@
             @if (Auth::user()->hasPower('manage_reports'))
                 <div class="alert alert-warning">Please include a small paragraph on the solution and as many important details as you deem necessary, as the user will no longer be able to view the comments after the report is closed.</div>
             @endif
-            <div class="form-group">
-                {!! Form::label('staff_comments', 'Staff Comments (Optional)') !!}
-                {!! Form::textarea('staff_comments', $report->staffComments, ['class' => 'form-control wysiwyg']) !!}
-            </div>
-        @endif
+		</div></div>
+    @endif
+
+    @if($report->status == 'Assigned' && $report->user_id == Auth::user()->id || Auth::user()->hasPower('manage_reports'))
+    @comments([ 'type' => 'Staff-User', 'model' => $report, 'perPage' => 5 ])
+    @endif
+
+    {!! Form::open(['url' => url()->current(), 'id' => 'reportForm']) !!}
+    @if($report->status == 'Assigned' && Auth::user()->id == $report->staff_id)
+    @if(Auth::user()->hasPower('manage_reports'))<div class="alert alert-warning">Please include a small paragraph on the solution and as many important details as you deem necessary, as the user will no longer be able to view the comments after the report is closed</div>@endif
+		<div class="form-group">
+            {!! Form::label('staff_comments', 'Staff Comments (Optional)') !!}
+			{!! Form::textarea('staff_comments', $report->staffComments, ['class' => 'form-control wysiwyg']) !!}
+        </div>
+    @endif
         <div class="text-right">
             @if ($report->staff_id == null)
                 <a href="#" class="btn btn-danger mr-2" id="assignButton">Assign</a>
@@ -133,17 +143,14 @@
 
 @endsection
 
-@if ($report->status !== 'Closed')
-    @section('scripts')
-        @parent
-        <script>
-            $(document).ready(function() {
-                $('#closalButton').on('click', function(e) {
-                    e.preventDefault();
-                    $('#closalContent').removeClass('hide');
-                    $('#assignContent').addClass('hide');
-                    $('#confirmationModal').modal('show');
-                });
+@section('scripts')
+@parent
+@if($report->status !== 'Closed')
+    <script>
+
+        $(document).ready(function() {
+            var $confirmationModal = $('#confirmationModal');
+            var $reportForm = $('#reportForm');
 
                 $('#assignButton').on('click', function(e) {
                     e.preventDefault();
@@ -152,18 +159,36 @@
                     $('#confirmationModal').modal('show');
                 });
 
-                $('#closalSubmit').on('click', function(e) {
-                    e.preventDefault();
-                    $('#reportForm').attr('action', '{{ url()->current() }}/close');
-                    $('#reportForm').submit();
-                });
+            var $assignButton = $('#assignButton');
+            var $assignContent = $('#assignContent');
+            var $assignSubmit = $('#assignSubmit');
 
-                $('#assignSubmit').on('click', function(e) {
-                    e.preventDefault();
-                    $('#reportForm').attr('action', '{{ url()->current() }}/assign');
-                    $('#reportForm').submit();
-                });
+            $closalButton.on('click', function(e) {
+                e.preventDefault();
+                $closalContent.removeClass('hide');
+                $assignContent.addClass('hide');
+                $confirmationModal.modal('show');
             });
-        </script>
-    @endsection
+
+            $assignButton.on('click', function(e) {
+                e.preventDefault();
+                $assignContent.removeClass('hide');
+                $closalContent.addClass('hide');
+                $confirmationModal.modal('show');
+            });
+
+            $closalSubmit.on('click', function(e) {
+                e.preventDefault();
+                $reportForm.attr('action', '{{ url()->current() }}/close');
+                $reportForm.submit();
+            });
+
+            $assignSubmit.on('click', function(e) {
+                e.preventDefault();
+                $reportForm.attr('action', '{{ url()->current() }}/assign');
+                $reportForm.submit();
+            });
+        });
+
+    </script>
 @endif

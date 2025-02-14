@@ -8,7 +8,11 @@ use App\Services\GalleryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class GalleryController extends Controller {
+use App\Http\Controllers\Controller;
+use App\Models\Criteria\Criterion;
+
+class GalleryController extends Controller
+{
     /*
     |--------------------------------------------------------------------------
     | Admin / Gallery Controller
@@ -36,8 +40,9 @@ class GalleryController extends Controller {
      */
     public function getCreateGallery() {
         return view('admin.galleries.create_edit_gallery', [
-            'gallery'   => new Gallery,
-            'galleries' => Gallery::sort()->pluck('name', 'id'),
+            'gallery' => new Gallery,
+            'galleries' => Gallery::sort()->pluck('name','id'),
+            'criteria' => Criterion::active()->orderBy('name')->pluck('name', 'id'),
         ]);
     }
 
@@ -55,8 +60,9 @@ class GalleryController extends Controller {
         }
 
         return view('admin.galleries.create_edit_gallery', [
-            'gallery'   => $gallery,
-            'galleries' => Gallery::sort()->pluck('name', 'id')->forget($id),
+            'gallery' => $gallery,
+            'galleries' => Gallery::sort()->pluck('name','id')->forget($id),
+            'criteria' => Criterion::active()->orderBy('name')->pluck('name', 'id'),
         ]);
     }
 
@@ -71,7 +77,7 @@ class GalleryController extends Controller {
     public function postCreateEditGallery(Request $request, GalleryService $service, $id = null) {
         $id ? $request->validate(Gallery::$updateRules) : $request->validate(Gallery::$createRules);
         $data = $request->only([
-            'name', 'sort', 'parent_id', 'description', 'submissions_open', 'currency_enabled', 'votes_required', 'start_at', 'end_at', 'hide_before_start', 'prompt_selection',
+            'name', 'sort', 'parent_id', 'description', 'submissions_open', 'currency_enabled', 'votes_required', 'start_at', 'end_at', 'hide_before_start', 'prompt_selection', 'criterion_id', 'criterion','criterion_currency_id','default_criteria'
         ]);
         if ($id && $service->updateGallery(Gallery::find($id), $data, Auth::user())) {
             flash('Gallery updated successfully.')->success();
