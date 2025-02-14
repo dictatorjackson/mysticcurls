@@ -88,6 +88,7 @@ class AddSiteSettings extends Command {
 
         $this->addSiteSetting('free_myos_is_resellable', 0, '0: MYOs cannot be resold, 1: MYOs can be resold. ');
 
+        $this->addSiteSetting('featured_character', 1, 'ID of the currently featured character.');
 
         $this->line("\nSite settings up to date!");
 

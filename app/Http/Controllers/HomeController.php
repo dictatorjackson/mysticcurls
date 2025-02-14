@@ -7,12 +7,23 @@ use App\Models\News;
 use App\Models\SitePage;
 use App\Services\LinkService;
 use App\Services\UserService;
+use Auth;
+use DB;
+use Config;
+use Carbon\Carbon;
+use Settings;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
 
-class HomeController extends Controller {
+use App\Models\Character\Character;
+
+use App\Services\DeviantArtService;
+use App\Services\UserService;
+class HomeController extends Controller
+{
     /*
     |--------------------------------------------------------------------------
     | Home Controller
@@ -39,6 +50,16 @@ class HomeController extends Controller {
             'about'               => SitePage::where('key', 'about')->first(),
             'gallerySubmissions'  => $gallerySubmissions,
             'newses'   => News::visible()->orderBy('updated_at', 'DESC')->take(2)->get(),
+    public function getIndex()
+        ])
+    {
+        if(Settings::get('featured_character')) {
+            $character = Character::find(Settings::get('featured_character'));
+        }
+        else $character = null;
+        return view('welcome', [
+            'about' => SitePage::where('key', 'about')->first(),
+            'featured' => $character,
         ]);
     }
 
@@ -193,5 +214,7 @@ class HomeController extends Controller {
         //}
 
         return true;
+    }
+    
     }
 }
