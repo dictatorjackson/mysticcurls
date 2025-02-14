@@ -107,4 +107,5 @@
             $("#sortable").disableSelection();
         });
     </script>
+    @endif
 @endsection

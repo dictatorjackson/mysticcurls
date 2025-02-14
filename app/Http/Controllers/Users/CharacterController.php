@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use DB;
 use Auth;
 use Route;
-use Settings;
 use App\Models\User\User;
 use App\Models\Species\Species;
 use App\Models\Species\Subtype;
@@ -19,17 +18,8 @@ use App\Models\Currency\CurrencyLog;
 use App\Models\User\UserCurrency;
 use App\Models\Character\CharacterCurrency;
 use App\Models\Character\CharacterTransfer;
-
 use App\Services\CurrencyManager;
-use App\Services\CharacterManager;
-
 use App\Http\Controllers\Controller;
-use App\Models\Character\Character;
-use App\Models\Character\CharacterTransfer;
-use App\Models\User\User;
-use App\Services\CharacterManager;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class CharacterController extends Controller {
     /*
