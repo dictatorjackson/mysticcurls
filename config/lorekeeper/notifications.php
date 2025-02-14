@@ -493,4 +493,11 @@ return [
         'message' => '<a href="{sender_url}">{sender_name}</a> has transferred a {type} breeding permission for <a href="character/{character_slug}">{character_name}</a> from you. (<a href="{url}">View Breeding Permissions</a>)',
         'url' => 'breeding-permissions'
     ],
+
+        // BIRTHDAY_REWARDED
+        1105 => [
+            'name' => 'Happy Birthday to You',
+            'message' => 'It\'s your birthday this month, {user_name}! A gift has been left in your inventory. (<a href="{url}">View Inventory</a>)',
+            'url' => 'inventory'
+        ],
 ];
