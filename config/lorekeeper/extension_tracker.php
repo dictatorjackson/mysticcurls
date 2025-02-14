@@ -48,7 +48,6 @@ return [
         ]),
         'version' => '1.0.0',
     ],
-];
     'mini_clock' => [
         'key' => 'mini_clock',
         'wiki_key' => 'Mini_Clock',
@@ -57,4 +56,6 @@ return [
         ]),
         'version' => '1.0.0',
     ],
+]
 ];
+
