@@ -50,6 +50,8 @@
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url('comments/liked') }}">
                                 Liked Comments
+                            <a class="dropdown-item" href="{{ url('higher-or-lower') }}">
+                                Higher or Lower
                             </a>
                         </div>
                     </li>
