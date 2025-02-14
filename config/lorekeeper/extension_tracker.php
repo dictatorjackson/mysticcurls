@@ -69,4 +69,13 @@ return [
             ]),
             'version' => '1.2.0',
         ],
+
+    'choice_box_tag' => [
+        'key' => 'Choice_Box_Tag',
+        'wiki_key' => 'Choice_Box_Tag',
+        'creators' => json_encode([
+            'Mercury' => 'https://github.com/itinerare/',
+        ]),
+        'version' => '1.0.0',
+    ],
 ];
