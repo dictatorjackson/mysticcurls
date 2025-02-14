@@ -12,7 +12,7 @@ return [
     //     ]),
     //     'version' => '1.0.0',
     // ],
-    
+    [
     'dailies' => [
         'key' => 'dailies',
         'wiki_key' => 'Dailies',
@@ -45,6 +45,15 @@ return [
         'wiki_key' => 'News_Widget',
         'creators' => json_encode([
             'Min' => 'https://github.com/liwoyadan/',
+        ]),
+        'version' => '1.0.0',
+    ],
+];
+    'mini_clock' => [
+        'key' => 'mini_clock',
+        'wiki_key' => 'Mini_Clock',
+        'creators' => json_encode([
+            'Newt' => 'https://github.com/ne-wt/',
         ]),
         'version' => '1.0.0',
     ],
